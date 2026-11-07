@@ -1,5 +1,7 @@
 # 🛒 NestJS Shop GraphQL API — Accounts, Customers, Products & Orders
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 [![Node.js](https://img.shields.io/badge/Node.js-24.9%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-12-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
@@ -693,5 +695,15 @@ return generic errors; raw SQL and driver details are not intended as public API
 
 ## 📄 License
 
-[package.json](package.json) currently declares **`UNLICENSED`** and marks this package private.
-No standalone license file is included in this repository.
+Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for the
+full terms. Third-party dependencies retain their respective licenses.
+
+## ⚠️ Disclaimer
+
+This project is an educational and reference implementation, provided **AS IS**.
+Tests and security controls do not guarantee production readiness or suitability
+for a particular deployment. Payment confirmations do not process payments or refunds.
+
+Review the [full disclaimer](DISCLAIMER.md) and
+[production notes](#-production-notes--remaining-work) before using real customer
+data or inventory. The disclaimer does not modify the Apache License 2.0 terms.
