@@ -1,19 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { ProductsResolver } from './products.resolver';
 import { ProductService } from './products.service';
 
-describe('ProductsResolver', () => {
-  let resolver: ProductsResolver;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [ProductsResolver, ProductService],
-    }).compile();
-
-    resolver = module.get<ProductsResolver>(ProductsResolver);
-  });
-
-  it('should be defined', () => {
-    expect(resolver).toBeDefined();
-  });
+it('ProductsResolver delegates lists with pagination', async () => {
+  const service = { findAll: jest.fn().mockReturnValue([]) };
+  const module = await Test.createTestingModule({
+    providers: [
+      ProductsResolver,
+      { provide: ProductService, useValue: service },
+    ],
+  }).compile();
+  const resolver = module.get(ProductsResolver);
+  const page = { take: 10, skip: 0 };
+  resolver.findAll(page);
+  expect(service.findAll).toHaveBeenCalledWith(page);
+  await module.close();
 });

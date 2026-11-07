@@ -2,24 +2,52 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthPayload {
+  accessToken: String!
+}
+
 type Product {
   productId: ID!
   productName: String!
   productvendor: String!
   productDescription: String!
   quantityInStock: Int!
-  buyPrice: Int!
-  msrp: Int!
+  buyPrice: Decimal
+  msrp: Decimal!
 }
+
+"""
+Exact monetary amount encoded as a decimal string, for example "19.95".
+"""
+scalar Decimal
 
 type OrderItem {
   orderItemId: ID!
   productId: String!
   productName: String!
   quantity: Int!
+  unitPrice: Decimal!
   order: Order!
   orderId: String!
 }
+
+type Order {
+  orderId: ID!
+  orderDate: DateTime!
+  customerId: String!
+  customer: Customer!
+  shippingDate: DateTime
+  status: String!
+  comments: String
+  total: Decimal!
+  orderItems(take: Int! = 20, skip: Int! = 0): [OrderItem!]!
+  paid: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Customer {
   customerId: ID!
@@ -32,92 +60,85 @@ type Customer {
   country: String!
   creationDate: DateTime!
   modificationDate: DateTime!
-  orders: [Order!]!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type Order {
-  orderId: ID!
-  orderDate: DateTime!
-  customerId: String!
-  customer: Customer!
-  shippingDate: DateTime!
-  status: String!
-  comments: String
-  total: Float!
-  orderItems: [OrderItem!]!
-  paid: Boolean!
+  orders(take: Int! = 20, skip: Int! = 0): [Order!]!
 }
 
 type Query {
-  products: [Product!]!
+  products(take: Int! = 20, skip: Int! = 0): [Product!]!
   product(id: String!): Product!
-  orders: [Order!]!
+  orders(take: Int! = 20, skip: Int! = 0): [Order!]!
   order(id: String!): Order!
-  customers: [Customer!]!
+  customers(take: Int! = 20, skip: Int! = 0): [Customer!]!
   customer(id: String!): Customer!
+  me: Customer!
 }
 
 type Mutation {
+  register(input: RegisterInput!): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
   createProduct(createProductInput: CreateProductInput!): Product!
   updateProduct(updateProductInput: UpdateProductInput!): Product!
   removeProduct(id: String!): Product!
   createOrder(createOrderInput: CreateOrderInput!): Order!
   updateOrder(updateOrderInput: UpdateOrderInput!): Order!
-  removeOrder(id: String!): Order!
+  removeOrder(id: String!): Order! @deprecated(reason: "Use cancelOrder; order history is retained.")
+  cancelOrder(id: String!): Order!
+  setOrderPaid(id: String!, paid: Boolean!): Order!
   createCustomer(createCustomerInput: CreateCustomerInput!): Customer!
   updateCustomer(updateCustomerInput: UpdateCustomerInput!): Customer!
   removeCustomer(id: String!): Customer!
 }
 
+input RegisterInput {
+  customerName: String!
+  cemail: String!
+  phone: String!
+  address: String!
+  city: String!
+  postalCode: String!
+  country: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 input CreateProductInput {
-  productId: ID
   productName: String!
   productvendor: String!
   productDescription: String!
   quantityInStock: Int!
-  buyPrice: Int!
-  msrp: Int!
+  buyPrice: Decimal!
+  msrp: Decimal!
 }
 
 input UpdateProductInput {
-  productId: String!
   productName: String
   productvendor: String
   productDescription: String
   quantityInStock: Int
-  buyPrice: Int
-  msrp: Int
+  buyPrice: Decimal
+  msrp: Decimal
+  productId: String!
 }
 
 input CreateOrderInput {
-  customerId: String!
+  customerId: String
   shippingDate: DateTime
-  status: String!
-  comments: String!
-  total: Int!
-  paid: Boolean!
+  comments: String! = ""
   orderItems: [OrderItemInput!]!
 }
 
 input OrderItemInput {
-  orderItemId: String
   productId: String!
-  productName: String!
   quantity: Int!
 }
 
 input UpdateOrderInput {
-  customerId: String
   shippingDate: DateTime
-  status: String
   comments: String
-  total: Int
-  paid: Boolean
   orderItems: [OrderItemInput!]
   orderId: String!
 }

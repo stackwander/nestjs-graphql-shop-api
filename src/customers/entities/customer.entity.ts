@@ -1,38 +1,38 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Order } from 'src/orders/entities/order.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @ObjectType()
 export class Customer {
   @Field(() => ID)
-  customerId: string;
+  customerId!: string;
 
   @Field()
-  customerName: string;
+  customerName!: string;
 
   @Field()
-  cemail: string;
+  cemail!: string;
 
   @Field()
-  phone: string;
+  phone!: string;
 
   @Field()
-  address: string;
+  address!: string;
 
   @Field()
-  city: string;
+  city!: string;
 
   @Field()
-  postalCode: string;
+  postalCode!: string;
 
   @Field()
-  country: string;
+  country!: string;
 
   @Field()
-  creationDate: Date;
+  creationDate!: Date;
 
   @Field()
-  modificationDate: Date;
+  modificationDate!: Date;
 
   @Field(() => [Order])
-  orders: Order[];
+  orders!: Order[];
 }

@@ -15,54 +15,76 @@ datasource db {
 
 //@map can be used to map schema field to already existing database field
 model Order {
-  orderId         String    @id @default(uuid())
-  orderDate       DateTime  @default(now())
-  customerId      String
-  customer        Customer  @relation(fields: [customerId], references: [customerId])
-  shippingDate    DateTime
-  status          String
-  comments        String
-  total           Decimal   @db.Decimal(10, 2)
-  orderItems      OrderItem[]
-  paid            Boolean   @default(false)
+  orderId      String      @id @default(uuid())
+  orderDate    DateTime    @default(now())
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [customerId])
+  shippingDate DateTime?
+  status       String
+  comments     String
+  total        Decimal     @db.Decimal(10, 2)
+  orderItems   OrderItem[]
+  paid         Boolean     @default(false)
+  //@@map("tablename")    ..... in case db table alreday exist
 
   @@index([customerId, orderDate])
-  //@@map("tablename")    ..... in case db table alreday exist
+  @@index([orderDate, orderId])
 }
 
 model OrderItem {
-  orderItemId     String       @id @default(uuid())
-  productId       String
-  productName     String
-  quantity        Int
-  orderId         String
-  order           Order        @relation(fields: [orderId], references: [orderId])
+  orderItemId String  @id @default(uuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [productId])
+  unitPrice   Decimal @db.Decimal(10, 2)
+  productName String
+  quantity    Int
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [orderId])
 
   @@index([productId])
+  @@index([orderId])
 }
 
 model Customer {
-  customerId       String      @id @default(uuid())
+  customerId       String   @id @default(uuid())
   customerName     String
-  cemail           String      @unique
+  cemail           String   @unique
   phone            String
   address          String
   city             String
   postalCode       String
   country          String
-  creationDate     DateTime    @default(now())
-  modificationDate DateTime    @updatedAt
+  creationDate     DateTime @default(now())
+  modificationDate DateTime @updatedAt
   orders           Order[]
+  user             User?
 }
 
 model Product {
-  productId          String    @id @default(uuid())
+  productId          String  @id @default(uuid())
   productName        String
   productvendor      String
   productDescription String
   quantityInStock    Int
-  buyPrice           Decimal   @db.Decimal(10, 2)
-  msrp               Decimal   @db.Decimal(10, 2)
+  buyPrice           Decimal @db.Decimal(10, 2)
+  msrp               Decimal @db.Decimal(10, 2)
+
+  orderItems OrderItem[]
 
   @@index([productName])
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(CUSTOMER)
+  customerId   String?   @unique
+  customer     Customer? @relation(fields: [customerId], references: [customerId])
+  createdAt    DateTime  @default(now())
 }

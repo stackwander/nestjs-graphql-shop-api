@@ -1,36 +1,38 @@
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import type { Relation } from '../../common/relation';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { OrderItem } from './order-item.entity';
+import { DecimalScalar } from '../../common/decimal.scalar';
 import { Customer } from '../../customers/entities/customer.entity';
 
 @ObjectType()
 export class Order {
   @Field(() => ID)
-  orderId: string;
+  orderId!: string;
 
   @Field()
-  orderDate: Date;
+  orderDate!: Date;
 
   @Field()
-  customerId: string;
+  customerId!: string;
 
   @Field(() => Customer)
-  customer: Customer;
+  customer!: Relation<Customer>;
+
+  @Field(() => Date, { nullable: true })
+  shippingDate!: Date | null;
 
   @Field()
-  shippingDate: Date;
-
-  @Field()
-  status: string;
+  status!: string;
 
   @Field({ nullable: true })
   comments?: string;
 
-  @Field(() => Float)
-  total: number;
+  @Field(() => DecimalScalar)
+  total!: string;
 
   @Field(() => [OrderItem])
-  orderItems: OrderItem[];
+  orderItems!: OrderItem[];
 
   @Field()
-  paid: boolean;
+  paid!: boolean;
 }

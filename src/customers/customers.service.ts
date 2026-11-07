@@ -1,41 +1,39 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
+import { Principal } from '../auth/auth.types';
+import { assertCustomerAccess } from '../common/access';
+import { PaginationArgs } from '../common/pagination.args';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
-import { PrismaService } from 'nestjs-prisma/dist/prisma.service';
 
 @Injectable()
 export class CustomersService {
-  constructor(private prisma: PrismaService) {}
-
-  create(createCustomerInput: CreateCustomerInput) {
-    return this.prisma.customer.create({
-      data: createCustomerInput,
+  constructor(private readonly prisma: PrismaService) {}
+  create(data: CreateCustomerInput) {
+    return this.prisma.customer.create({ data });
+  }
+  findAll(page: PaginationArgs) {
+    return this.prisma.customer.findMany({
+      ...page,
+      orderBy: { customerId: 'asc' },
     });
   }
-
-  findAll() {
-    return this.prisma.customer.findMany();
+  findOne(customerId: string, user: Principal) {
+    assertCustomerAccess(user, customerId);
+    return this.prisma.customer.findUniqueOrThrow({ where: { customerId } });
   }
-
-  findOne(id: string) {
-    const customer = this.prisma.customer.findUnique({
-      where: { customerId: id },
-      include: { orders: true }, //find orders based on relation return [] if nothing found
+  update({ customerId, ...data }: UpdateCustomerInput, user: Principal) {
+    assertCustomerAccess(user, customerId);
+    return this.prisma.customer.update({ where: { customerId }, data });
+  }
+  remove(customerId: string) {
+    return this.prisma.customer.delete({ where: { customerId } });
+  }
+  orders(customerId: string, page: PaginationArgs) {
+    return this.prisma.order.findMany({
+      where: { customerId },
+      ...page,
+      orderBy: [{ orderDate: 'desc' }, { orderId: 'asc' }],
     });
-
-    return customer;
-  }
-
-  update(id: string, updateCustomerInput: UpdateCustomerInput) {
-    const { customerId, ...customerFields } = updateCustomerInput;
-    return this.prisma.customer.update({
-      where: { customerId: id }, //customer id in entity mapped
-      data: customerFields,
-    });
-  }
-
-  remove(id: string) {
-    return this.prisma.customer.delete({ where: { customerId: id } });
   }
 }

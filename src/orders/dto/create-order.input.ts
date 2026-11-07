@@ -1,55 +1,40 @@
-import { OrderItemInput } from './create-orderitem.input';
-import { GraphQLISODateTime } from '@nestjs/graphql';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsUUID,
-  IsString,
-  Min,
-  IsDate,
-  IsBoolean,
-  IsArray,
-  ArrayMinSize,
-  ValidateNested,
-  IsOptional,
-} from 'class-validator';
 import { Type } from 'class-transformer';
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, InputType } from '@nestjs/graphql';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsDate,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
+import { OrderItemInput } from './create-orderitem.input';
 
-@InputType() // GraphQL decorator
+@InputType()
 export class CreateOrderInput {
-  @Field()
-  @IsNotEmpty()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsUUID()
-  customerId: string;
+  customerId?: string;
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   @IsOptional()
   @IsDate()
-  shippingDate: Date;
+  shippingDate?: Date | null;
 
-  @Field()
-  @IsNotEmpty()
+  @Field({ defaultValue: '' })
   @IsString()
-  status: string;
+  @MaxLength(2000)
+  comments!: string;
 
-  @Field()
-  @IsString()
-  comments: string;
-
-  @Field(() => Int)
-  @IsNumber()
-  @Min(0)
-  total: number;
-
-  @Field(() => Boolean)
-  @IsBoolean()
-  paid: boolean;
-
-  @Field(() => [OrderItemInput]) //graphql
+  @Field(() => [OrderItemInput])
   @IsArray()
   @ArrayMinSize(1)
+  @ArrayMaxSize(100)
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
-  orderItems: OrderItemInput[];
+  orderItems!: OrderItemInput[];
 }

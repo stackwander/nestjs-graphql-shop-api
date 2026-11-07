@@ -1,18 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from '../database/prisma.service';
 import { ProductService } from './products.service';
 
-describe('ProductsService', () => {
-  let service: ProductService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [ProductService],
-    }).compile();
-
-    service = module.get<ProductService>(ProductService);
+it('paginates products with a stable order', () => {
+  const prisma = { product: { findMany: jest.fn() } };
+  new ProductService(prisma as unknown as PrismaService).findAll({
+    take: 10,
+    skip: 20,
   });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  expect(prisma.product.findMany).toHaveBeenCalledWith({
+    take: 10,
+    skip: 20,
+    orderBy: { productId: 'asc' },
   });
 });

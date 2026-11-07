@@ -1,4 +1,15 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { CurrentUser, Principal, Roles } from '../auth/auth.types';
+import { DecimalScalar } from '../common/decimal.scalar';
+import { PaginationArgs } from '../common/pagination.args';
+import { ParseUUIDPipe } from '@nestjs/common';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { ProductService } from './products.service';
 import { Product } from './entities/product.entity';
 import { CreateProductInput } from './dto/create-product.input';
@@ -15,13 +26,15 @@ export class ProductsResolver {
     return this.productsService.create(createProductInput);
   }
 
+  @Roles('ADMIN', 'CUSTOMER')
   @Query(() => [Product], { name: 'products' })
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Args() page: PaginationArgs) {
+    return this.productsService.findAll(page);
   }
 
+  @Roles('ADMIN', 'CUSTOMER')
   @Query(() => Product, { name: 'product' })
-  findOne(@Args('id', { type: () => String }) id: string) {
+  findOne(@Args('id', { type: () => String }, new ParseUUIDPipe()) id: string) {
     return this.productsService.findOne(id);
   }
 
@@ -29,14 +42,17 @@ export class ProductsResolver {
   updateProduct(
     @Args('updateProductInput') updateProductInput: UpdateProductInput,
   ) {
-    return this.productsService.update(
-      updateProductInput.productId,
-      updateProductInput,
-    );
+    return this.productsService.update(updateProductInput);
   }
 
   @Mutation(() => Product)
-  removeProduct(@Args('id', { type: () => String }) id: string) {
+  removeProduct(
+    @Args('id', { type: () => String }, new ParseUUIDPipe()) id: string,
+  ) {
     return this.productsService.remove(id);
+  }
+  @ResolveField(() => DecimalScalar, { nullable: true })
+  buyPrice(@Parent() product: Product, @CurrentUser() user: Principal) {
+    return user.role === 'ADMIN' ? product.buyPrice : null;
   }
 }

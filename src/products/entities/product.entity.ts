@@ -1,25 +1,26 @@
 import { ObjectType, Field, Int, ID } from '@nestjs/graphql';
+import { DecimalScalar } from '../../common/decimal.scalar';
 
 @ObjectType()
 export class Product {
   @Field(() => ID)
-  productId: string;
+  productId!: string;
 
   @Field()
-  productName: string;
+  productName!: string;
 
   @Field()
-  productvendor: string;
+  productvendor!: string;
 
   @Field()
-  productDescription: string;
+  productDescription!: string;
 
   @Field(() => Int)
-  quantityInStock: number;
+  quantityInStock!: number;
 
-  @Field(() => Int)
-  buyPrice: number;
+  @Field(() => DecimalScalar, { nullable: true })
+  buyPrice!: string | null;
 
-  @Field(() => Int)
-  msrp: number;
+  @Field(() => DecimalScalar)
+  msrp!: string;
 }

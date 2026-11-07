@@ -1,8 +1,13 @@
+import { Field, InputType, OmitType, PartialType } from '@nestjs/graphql';
+import { IsUUID } from 'class-validator';
 import { CreateOrderInput } from './create-order.input';
-import { InputType, Field, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateOrderInput extends PartialType(CreateOrderInput) {
-  @Field(() => String)
-  orderId: string;
+export class UpdateOrderInput extends PartialType(
+  OmitType(CreateOrderInput, ['customerId'] as const),
+  { skipNullProperties: false, omitDefaultValues: true },
+) {
+  @Field()
+  @IsUUID()
+  orderId!: string;
 }
